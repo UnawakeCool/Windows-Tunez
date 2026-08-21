@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Tunez</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="player">
+            <div class="header">
+                <h1>🎵 Windows Tunez</h1>
+            </div>
+            
+            <div class="album-art">
+                <img id="albumArt" src="https://via.placeholder.com/300?text=No+Song" alt="Album Art">
+            </div>
+            
+            <div class="song-info">
+                <h2 id="songTitle">Select a Song</h2>
+                <p id="artistName">Unknown Artist</p>
+            </div>
+            
+            <div class="progress-container">
+                <span id="currentTime">0:00</span>
+                <input type="range" id="progressBar" min="0" max="100" value="0">
+                <span id="duration">0:00</span>
+            </div>
+            
+            <div class="controls">
+                <button id="prevBtn" class="btn">⏮ Prev</button>
+                <button id="playBtn" class="btn play-btn">▶ Play</button>
+                <button id="nextBtn" class="btn">Next ⏭</button>
+            </div>
+            
+            <div class="volume-container">
+                <label for="volumeControl">Volume:</label>
+                <input type="range" id="volumeControl" min="0" max="100" value="70">
+            </div>
+            
+            <div class="playlist-section">
+                <h3>Playlist</h3>
+                <ul id="playlist" class="playlist">
+                    <!-- Playlist items will be added here -->
+                </ul>
+            </div>
+            
+            <div class="upload-section">
+                <input type="file" id="fileInput" accept="audio/*" multiple>
+                <button id="uploadBtn" class="btn">📁 Load Songs</button>
+            </div>
+        </div>
+    </div>
+    
+    <audio id="audioPlayer"></audio>
+    <script src="script.js"></script>
+</body>
+</html>
