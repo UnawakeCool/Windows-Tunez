@@ -32,26 +32,43 @@ function saveSongs() {
 }
 
 // Upload and load songs
-uploadBtn.addEventListener('click', () => {
+uploadBtn.addEventListener('click', (e) => {
+    e.preventDefault();
     fileInput.click();
 });
 
 fileInput.addEventListener('change', (e) => {
     const files = Array.from(e.target.files);
-    files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            songs.push({
-                title: file.name.replace(/\.[^/.]+$/, ''),
-                artist: 'Uploaded Song',
-                url: event.target.result,
-                image: 'https://via.placeholder.com/300?text=Music'
-            });
-            saveSongs();
-            renderPlaylist();
-        };
-        reader.readAsDataURL(file);
+    
+    if (files.length === 0) return;
+    
+    files.forEach((file) => {
+        if (file.type.startsWith('audio/')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                songs.push({
+                    title: file.name.replace(/\.[^/.]+$/, ''),
+                    artist: 'Uploaded Song',
+                    url: event.target.result,
+                    image: 'https://via.placeholder.com/300?text=Music'
+                });
+                saveSongs();
+                renderPlaylist();
+                
+                // Load first song if it's the first upload
+                if (songs.length === 1) {
+                    loadSong();
+                }
+            };
+            reader.onerror = () => {
+                console.error('Error reading file:', file.name);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            alert(`${file.name} is not an audio file`);
+        }
     });
+    
     fileInput.value = '';
 });
 
@@ -124,6 +141,7 @@ playBtn.addEventListener('click', () => {
 
 // Next song
 nextBtn.addEventListener('click', () => {
+    if (songs.length === 0) return;
     currentIndex = (currentIndex + 1) % songs.length;
     loadSong();
     if (isPlaying) play();
@@ -131,6 +149,7 @@ nextBtn.addEventListener('click', () => {
 
 // Previous song
 prevBtn.addEventListener('click', () => {
+    if (songs.length === 0) return;
     currentIndex = (currentIndex - 1 + songs.length) % songs.length;
     loadSong();
     if (isPlaying) play();
