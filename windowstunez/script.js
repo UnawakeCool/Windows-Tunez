@@ -63,16 +63,21 @@ function addSampleSongs() {
 function showUploadProgress(current, total) {
     uploadProgress.style.display = 'block';
     uploadCount.textContent = current + '/' + total;
-    progressFill.style.width = (current / total * 100) + '%';
+    const percent = Math.round((current / total) * 100);
+    progressFill.style.width = percent + '%';
+    uploadStatus.textContent = 'Uploading... ' + percent + '%';
 }
 
 // Hide upload progress
 function hideUploadProgress() {
-    uploadProgress.style.display = 'none';
-    progressFill.style.width = '0%';
+    setTimeout(function() {
+        uploadProgress.style.display = 'none';
+        progressFill.style.width = '0%';
+        uploadStatus.textContent = 'Uploading...';
+    }, 1000);
 }
 
-// Process files
+// Process files - Sequential processing to avoid freezing
 function processFiles(files) {
     const fileArray = Array.from(files);
     
@@ -97,7 +102,19 @@ function processFiles(files) {
     
     let filesProcessed = 0;
     
-    validFiles.forEach(function(file, index) {
+    // Process files one at a time
+    function processNext() {
+        if (filesProcessed >= validFiles.length) {
+            console.log('All files processed!');
+            saveSongs();
+            renderPlaylist();
+            loadSong();
+            hideUploadProgress();
+            alert('Successfully added ' + validFiles.length + ' song(s) to your library!');
+            return;
+        }
+        
+        const file = validFiles[filesProcessed];
         console.log('Reading: ' + file.name);
         
         const reader = new FileReader();
@@ -117,28 +134,38 @@ function processFiles(files) {
             showUploadProgress(filesProcessed, validFiles.length);
             console.log('Progress: ' + filesProcessed + '/' + validFiles.length);
             
-            if (filesProcessed === validFiles.length) {
-                console.log('All files processed!');
-                saveSongs();
-                renderPlaylist();
-                loadSong();
-                hideUploadProgress();
-                alert('Successfully added ' + validFiles.length + ' song(s) to your library!');
-            }
+            // Process next file after a small delay
+            setTimeout(processNext, 100);
         };
         
         reader.onerror = function(error) {
             console.error('Error reading ' + file.name + ':', error);
             filesProcessed++;
-            showUploadProgress(filesProcessed, validFiles.length);
+            setTimeout(processNext, 100);
         };
         
-        reader.readAsDataURL(file);
-    });
+        reader.onprogress = function(event) {
+            if (event.lengthComputable) {
+                const percentComplete = Math.round((event.loaded / event.total) * 100);
+                console.log(file.name + ': ' + percentComplete + '%');
+            }
+        };
+        
+        try {
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Error starting read for ' + file.name + ':', error);
+            filesProcessed++;
+            setTimeout(processNext, 100);
+        }
+    }
+    
+    processNext();
 }
 
 // Upload button click
 uploadBtn.addEventListener('click', function() {
+    console.log('Upload button clicked');
     fileInput.click();
 });
 
