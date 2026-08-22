@@ -392,6 +392,80 @@ body {
     font-weight: 600;
 }
 
+/* URL Input Section */
+.url-input-section {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.url-input-section h3 {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.url-input-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.url-input {
+    flex: 1;
+    padding: 12px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 12px;
+}
+
+.url-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.url-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.add-url-btn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+}
+
+.add-url-btn:hover {
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    transform: translateY(-2px);
+}
+
+.add-url-btn:active {
+    transform: translateY(0);
+}
+
+.url-info {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: 0;
+    text-align: center;
+}
+
 /* Upload Area */
 .upload-area {
     border: 2px dashed var(--primary);
@@ -743,5 +817,13 @@ body {
 
     .share-buttons {
         flex-direction: column;
+    }
+
+    .url-input-container {
+        flex-direction: column;
+    }
+
+    .add-url-btn {
+        width: 100%;
     }
 }
