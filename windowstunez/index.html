@@ -7,52 +7,88 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="player">
-            <div class="header">
-                <h1>🎵 Windows Tunez</h1>
-            </div>
-            
-            <div class="album-art">
-                <img id="albumArt" src="https://via.placeholder.com/300?text=No+Song" alt="Album Art">
-            </div>
-            
-            <div class="song-info">
-                <h2 id="songTitle">Select a Song</h2>
-                <p id="artistName">Unknown Artist</p>
-            </div>
-            
-            <div class="progress-container">
-                <span id="currentTime">0:00</span>
-                <input type="range" id="progressBar" min="0" max="100" value="0">
-                <span id="duration">0:00</span>
-            </div>
-            
-            <div class="controls">
-                <button id="prevBtn" class="btn">⏮ Prev</button>
-                <button id="playBtn" class="btn play-btn">▶ Play</button>
-                <button id="nextBtn" class="btn">Next ⏭</button>
-            </div>
-            
-            <div class="volume-container">
-                <label for="volumeControl">Volume:</label>
-                <input type="range" id="volumeControl" min="0" max="100" value="70">
-            </div>
-            
-            <div class="playlist-section">
-                <h3>Playlist</h3>
-                <ul id="playlist" class="playlist">
-                    <!-- Playlist items will be added here -->
-                </ul>
-            </div>
-            
-            <div class="upload-section">
-                <input type="file" id="fileInput" accept="audio/*" multiple>
-                <button id="uploadBtn" class="btn">📁 Load Songs</button>
+    <div class="main-container">
+        <div class="player-wrapper">
+            <div class="player">
+                <!-- Background blur effect -->
+                <div class="bg-blur"></div>
+                
+                <!-- Album Art Section -->
+                <div class="album-section">
+                    <div class="album-container">
+                        <img id="albumArt" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop" alt="Album Art" class="album-art">
+                        <div class="album-overlay"></div>
+                    </div>
+                </div>
+
+                <!-- Song Info -->
+                <div class="song-details">
+                    <h2 id="songTitle">Windows Tunez</h2>
+                    <p id="artistName">Your Music Player</p>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-section">
+                    <input type="range" id="progressBar" min="0" max="100" value="0" class="progress-bar">
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Main Controls -->
+                <div class="controls-main">
+                    <button id="prevBtn" class="control-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                            <line x1="5" y1="4" x2="5" y2="20"></line>
+                        </svg>
+                    </button>
+                    <button id="playBtn" class="control-btn play-btn">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                    </button>
+                    <button id="nextBtn" class="control-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                            <line x1="19" y1="4" x2="19" y2="20"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Volume Control -->
+                <div class="volume-section">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    </svg>
+                    <input type="range" id="volumeControl" min="0" max="100" value="70" class="volume-slider">
+                </div>
+
+                <!-- Playlist Section -->
+                <div class="playlist-container">
+                    <h3>Playlist</h3>
+                    <ul id="playlist" class="playlist">
+                        <!-- Playlist items added here -->
+                    </ul>
+                </div>
+
+                <!-- Upload Section -->
+                <div class="upload-area">
+                    <input type="file" id="fileInput" accept="audio/*" multiple style="display: none;">
+                    <button id="uploadBtn" class="upload-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Upload Music
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    
+
     <audio id="audioPlayer"></audio>
     <script src="script.js"></script>
 </body>
