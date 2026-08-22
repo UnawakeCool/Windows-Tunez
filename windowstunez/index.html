@@ -90,6 +90,65 @@
                         <div id="progressFill" class="progress-fill"></div>
                     </div>
                 </div>
+
+                <!-- Share/Library Section -->
+                <div class="library-section">
+                    <h3>Share Music</h3>
+                    <div class="share-buttons">
+                        <button id="shareBtn" class="share-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="18" cy="5" r="3"></circle>
+                                <circle cx="6" cy="12" r="3"></circle>
+                                <circle cx="18" cy="19" r="3"></circle>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                            </svg>
+                            Share Playlist
+                        </button>
+                        <button id="importBtn" class="share-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="8 17 12 21 16 17"></polyline>
+                                <line x1="12" y1="12" x2="12" y2="21"></line>
+                                <path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"></path>
+                            </svg>
+                            Import Playlist
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Share Modal -->
+                <div id="shareModal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Share Your Playlist</h2>
+                            <button class="modal-close" id="closeShare">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Share this code with your friends:</p>
+                            <div class="share-code-container">
+                                <input type="text" id="shareCode" readonly class="share-code">
+                                <button id="copyBtn" class="copy-btn">Copy</button>
+                            </div>
+                            <p class="share-info">Friends can import this code to get all your songs!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import Modal -->
+                <div id="importModal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Import Playlist</h2>
+                            <button class="modal-close" id="closeImport">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Paste a share code:</p>
+                            <input type="text" id="importCode" placeholder="Paste the share code here" class="share-code">
+                            <button id="importPlaylistBtn" class="share-btn" style="width: 100%; margin-top: 16px;">Import</button>
+                            <p class="share-info">This will add all songs from that playlist to yours.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
