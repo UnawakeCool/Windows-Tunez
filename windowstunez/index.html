@@ -10,10 +10,8 @@
     <div class="main-container">
         <div class="player-wrapper">
             <div class="player">
-                <!-- Background blur effect -->
                 <div class="bg-blur"></div>
                 
-                <!-- Album Art Section -->
                 <div class="album-section">
                     <div class="album-container">
                         <img id="albumArt" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop" alt="Album Art" class="album-art">
@@ -21,13 +19,11 @@
                     </div>
                 </div>
 
-                <!-- Song Info -->
                 <div class="song-details">
                     <h2 id="songTitle">Windows Tunez</h2>
                     <p id="artistName">Your Music Player</p>
                 </div>
 
-                <!-- Progress Bar -->
                 <div class="progress-section">
                     <input type="range" id="progressBar" min="0" max="100" value="0" class="progress-bar">
                     <div class="time-display">
@@ -36,7 +32,6 @@
                     </div>
                 </div>
 
-                <!-- Main Controls -->
                 <div class="controls-main">
                     <button id="prevBtn" class="control-btn">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -57,7 +52,6 @@
                     </button>
                 </div>
 
-                <!-- Volume Control -->
                 <div class="volume-section">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -65,25 +59,36 @@
                     <input type="range" id="volumeControl" min="0" max="100" value="70" class="volume-slider">
                 </div>
 
-                <!-- Playlist Section -->
                 <div class="playlist-container">
                     <h3>Playlist</h3>
-                    <ul id="playlist" class="playlist">
-                        <!-- Playlist items added here -->
-                    </ul>
+                    <ul id="playlist" class="playlist"></ul>
                 </div>
 
-                <!-- Upload Section -->
-                <div class="upload-area">
-                    <input type="file" id="fileInput" accept="audio/*" multiple>
-                    <button id="uploadBtn" class="upload-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <!-- Drag and Drop Upload Area -->
+                <div id="dropZone" class="upload-area">
+                    <div class="upload-content">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="upload-icon">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="17 8 12 3 7 8"></polyline>
                             <line x1="12" y1="3" x2="12" y2="15"></line>
                         </svg>
-                        Upload Music
-                    </button>
+                        <h3>Add Music</h3>
+                        <p>Drag and drop your songs here</p>
+                        <p class="upload-or">or</p>
+                        <button id="uploadBtn" class="upload-btn">Browse Files</button>
+                    </div>
+                    <input type="file" id="fileInput" accept="audio/*" multiple>
+                </div>
+
+                <!-- Upload Progress -->
+                <div id="uploadProgress" class="upload-progress" style="display: none;">
+                    <div class="progress-info">
+                        <span id="uploadStatus">Uploading...</span>
+                        <span id="uploadCount">0/0</span>
+                    </div>
+                    <div class="progress-bar-upload">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
                 </div>
             </div>
         </div>
