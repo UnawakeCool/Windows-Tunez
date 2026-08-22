@@ -1,3 +1,4 @@
+// Get all elements
 const audioPlayer = document.getElementById('audioPlayer');
 const playBtn = document.getElementById('playBtn');
 const prevBtn = document.getElementById('prevBtn');
@@ -17,36 +18,7 @@ let songs = [];
 let currentIndex = 0;
 let isPlaying = false;
 
-// Initialize
-function init() {
-    loadSongs();
-    if (songs.length === 0) {
-        addSampleSongs();
-    }
-    if (songs.length > 0) {
-        loadSong();
-        renderPlaylist();
-    }
-    setupEventListeners();
-}
-
-function setupEventListeners() {
-    uploadBtn.addEventListener('click', () => {
-        fileInput.click();
-    });
-
-    fileInput.addEventListener('change', handleFileSelect);
-    playBtn.addEventListener('click', togglePlay);
-    prevBtn.addEventListener('click', previousSong);
-    nextBtn.addEventListener('click', nextSong);
-    progressBar.addEventListener('change', seek);
-    progressBar.addEventListener('input', updateProgress);
-    volumeControl.addEventListener('change', setVolume);
-    audioPlayer.addEventListener('timeupdate', updateTime);
-    audioPlayer.addEventListener('loadedmetadata', updateDuration);
-    audioPlayer.addEventListener('ended', nextSong);
-}
-
+// Load songs from storage
 function loadSongs() {
     const saved = localStorage.getItem('windowstunezSongs');
     if (saved) {
@@ -58,10 +30,12 @@ function loadSongs() {
     }
 }
 
+// Save songs to storage
 function saveSongs() {
     localStorage.setItem('windowstunezSongs', JSON.stringify(songs));
 }
 
+// Add sample songs
 function addSampleSongs() {
     songs = [
         {
@@ -80,12 +54,13 @@ function addSampleSongs() {
     saveSongs();
 }
 
+// Handle file selection
 function handleFileSelect(e) {
     const files = Array.from(e.target.files);
     
     if (files.length === 0) return;
 
-    files.forEach(file => {
+    files.forEach((file) => {
         if (file.type.startsWith('audio/')) {
             const reader = new FileReader();
             
@@ -107,16 +82,19 @@ function handleFileSelect(e) {
             };
             
             reader.onerror = () => {
-                console.error('Error reading file');
+                console.error('Error reading file:', file.name);
             };
             
             reader.readAsDataURL(file);
+        } else {
+            alert(file.name + ' is not an audio file');
         }
     });
     
     fileInput.value = '';
 }
 
+// Render playlist
 function renderPlaylist() {
     playlist.innerHTML = '';
     
@@ -136,6 +114,7 @@ function renderPlaylist() {
     });
 }
 
+// Load current song
 function loadSong() {
     if (songs.length === 0) return;
     
@@ -148,6 +127,7 @@ function loadSong() {
     updatePlaylistUI();
 }
 
+// Update playlist UI
 function updatePlaylistUI() {
     document.querySelectorAll('.playlist-item').forEach((item, index) => {
         item.classList.remove('active');
@@ -157,6 +137,25 @@ function updatePlaylistUI() {
     });
 }
 
+// Play
+function play() {
+    if (songs.length === 0) {
+        alert('Please upload songs first!');
+        return;
+    }
+    audioPlayer.play();
+    isPlaying = true;
+    updatePlayButton();
+}
+
+// Pause
+function pause() {
+    audioPlayer.pause();
+    isPlaying = false;
+    updatePlayButton();
+}
+
+// Toggle play/pause
 function togglePlay() {
     if (songs.length === 0) {
         alert('Please upload songs first!');
@@ -170,18 +169,7 @@ function togglePlay() {
     }
 }
 
-function play() {
-    audioPlayer.play();
-    isPlaying = true;
-    updatePlayButton();
-}
-
-function pause() {
-    audioPlayer.pause();
-    isPlaying = false;
-    updatePlayButton();
-}
-
+// Update play button
 function updatePlayButton() {
     if (isPlaying) {
         playBtn.classList.add('playing');
@@ -192,6 +180,7 @@ function updatePlayButton() {
     }
 }
 
+// Next song
 function nextSong() {
     if (songs.length === 0) return;
     currentIndex = (currentIndex + 1) % songs.length;
@@ -199,6 +188,7 @@ function nextSong() {
     if (isPlaying) play();
 }
 
+// Previous song
 function previousSong() {
     if (songs.length === 0) return;
     currentIndex = (currentIndex - 1 + songs.length) % songs.length;
@@ -206,34 +196,69 @@ function previousSong() {
     if (isPlaying) play();
 }
 
+// Seek to position
 function seek() {
     const time = (progressBar.value / 100) * audioPlayer.duration;
     audioPlayer.currentTime = time;
 }
 
+// Update progress bar
 function updateProgress() {
     const percentage = (audioPlayer.currentTime / audioPlayer.duration) * 100;
     progressBar.value = percentage || 0;
 }
 
+// Update time display
 function updateTime() {
     updateProgress();
     currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
 }
 
+// Update duration display
 function updateDuration() {
     durationEl.textContent = formatTime(audioPlayer.duration);
 }
 
+// Set volume
 function setVolume() {
     audioPlayer.volume = volumeControl.value / 100;
 }
 
+// Format time
 function formatTime(seconds) {
     if (isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Initialize app
+function init() {
+    loadSongs();
+    if (songs.length === 0) {
+        addSampleSongs();
+    }
+    if (songs.length > 0) {
+        loadSong();
+        renderPlaylist();
+    }
+    
+    // Setup event listeners
+    uploadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', handleFileSelect);
+    playBtn.addEventListener('click', togglePlay);
+    prevBtn.addEventListener('click', previousSong);
+    nextBtn.addEventListener('click', nextSong);
+    progressBar.addEventListener('change', seek);
+    progressBar.addEventListener('input', updateProgress);
+    volumeControl.addEventListener('change', setVolume);
+    audioPlayer.addEventListener('timeupdate', updateTime);
+    audioPlayer.addEventListener('loadedmetadata', updateDuration);
+    audioPlayer.addEventListener('ended', nextSong);
 }
 
 // Start the app
