@@ -19,6 +19,18 @@ const currentTimeEl = document.getElementById('currentTime');
 const durationEl = document.getElementById('duration');
 const albumArt = document.getElementById('albumArt');
 
+// Share elements
+const shareBtn = document.getElementById('shareBtn');
+const importBtn = document.getElementById('importBtn');
+const shareModal = document.getElementById('shareModal');
+const importModal = document.getElementById('importModal');
+const closeShare = document.getElementById('closeShare');
+const closeImport = document.getElementById('closeImport');
+const shareCode = document.getElementById('shareCode');
+const copyBtn = document.getElementById('copyBtn');
+const importCode = document.getElementById('importCode');
+const importPlaylistBtn = document.getElementById('importPlaylistBtn');
+
 let songs = [];
 let currentIndex = 0;
 let isPlaying = false;
@@ -77,7 +89,7 @@ function hideUploadProgress() {
     }, 1000);
 }
 
-// Process files - Sequential processing to avoid freezing
+// Process files - Sequential processing
 function processFiles(files) {
     const fileArray = Array.from(files);
     
@@ -349,6 +361,110 @@ function formatTime(seconds) {
     const secsStr = secs < 10 ? '0' + secs : secs;
     return mins + ':' + secsStr;
 }
+
+// Share/Import Functions
+function generateShareCode() {
+    const playlistData = {
+        songs: songs.map(function(song) {
+            return {
+                title: song.title,
+                artist: song.artist,
+                url: song.url
+            };
+        })
+    };
+    
+    const jsonString = JSON.stringify(playlistData);
+    const encoded = btoa(jsonString);
+    return encoded;
+}
+
+function decodeShareCode(code) {
+    try {
+        const decoded = atob(code);
+        const playlistData = JSON.parse(decoded);
+        return playlistData;
+    } catch (e) {
+        return null;
+    }
+}
+
+// Share button
+shareBtn.addEventListener('click', function() {
+    const code = generateShareCode();
+    shareCode.value = code;
+    shareModal.style.display = 'flex';
+});
+
+// Copy button
+copyBtn.addEventListener('click', function() {
+    shareCode.select();
+    document.execCommand('copy');
+    copyBtn.textContent = 'Copied!';
+    setTimeout(function() {
+        copyBtn.textContent = 'Copy';
+    }, 2000);
+});
+
+// Import button
+importBtn.addEventListener('click', function() {
+    importModal.style.display = 'flex';
+    importCode.value = '';
+});
+
+// Import playlist
+importPlaylistBtn.addEventListener('click', function() {
+    const code = importCode.value.trim();
+    
+    if (!code) {
+        alert('Please paste a share code');
+        return;
+    }
+    
+    const playlistData = decodeShareCode(code);
+    
+    if (!playlistData || !playlistData.songs) {
+        alert('Invalid share code');
+        return;
+    }
+    
+    const songsAdded = playlistData.songs.length;
+    
+    playlistData.songs.forEach(function(song) {
+        songs.push({
+            title: song.title,
+            artist: song.artist,
+            url: song.url,
+            image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop'
+        });
+    });
+    
+    saveSongs();
+    renderPlaylist();
+    loadSong();
+    
+    importModal.style.display = 'none';
+    alert('Successfully imported ' + songsAdded + ' song(s)!');
+});
+
+// Close modals
+closeShare.addEventListener('click', function() {
+    shareModal.style.display = 'none';
+});
+
+closeImport.addEventListener('click', function() {
+    importModal.style.display = 'none';
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', function(e) {
+    if (e.target === shareModal) {
+        shareModal.style.display = 'none';
+    }
+    if (e.target === importModal) {
+        importModal.style.display = 'none';
+    }
+});
 
 // Initialize
 loadSongs();
