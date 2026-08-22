@@ -17,68 +17,115 @@ let songs = [];
 let currentIndex = 0;
 let isPlaying = false;
 
-// Load sample songs or from localStorage
-function loadSongs() {
-    const saved = localStorage.getItem('musicPlayerSongs');
-    if (saved) {
-        songs = JSON.parse(saved);
+// Initialize
+function init() {
+    loadSongs();
+    if (songs.length === 0) {
+        addSampleSongs();
+    }
+    if (songs.length > 0) {
+        loadSong();
         renderPlaylist();
+    }
+    setupEventListeners();
+}
+
+function setupEventListeners() {
+    uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', handleFileSelect);
+    playBtn.addEventListener('click', togglePlay);
+    prevBtn.addEventListener('click', previousSong);
+    nextBtn.addEventListener('click', nextSong);
+    progressBar.addEventListener('change', seek);
+    progressBar.addEventListener('input', updateProgress);
+    volumeControl.addEventListener('change', setVolume);
+    audioPlayer.addEventListener('timeupdate', updateTime);
+    audioPlayer.addEventListener('loadedmetadata', updateDuration);
+    audioPlayer.addEventListener('ended', nextSong);
+}
+
+function loadSongs() {
+    const saved = localStorage.getItem('windowstunezSongs');
+    if (saved) {
+        try {
+            songs = JSON.parse(saved);
+        } catch (e) {
+            songs = [];
+        }
     }
 }
 
-// Save songs to localStorage
 function saveSongs() {
-    localStorage.setItem('musicPlayerSongs', JSON.stringify(songs));
+    localStorage.setItem('windowstunezSongs', JSON.stringify(songs));
 }
 
-// Upload and load songs
-uploadBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    fileInput.click();
-});
+function addSampleSongs() {
+    songs = [
+        {
+            title: 'Sample Track 1',
+            artist: 'Windows Tunez',
+            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+            image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop'
+        },
+        {
+            title: 'Sample Track 2',
+            artist: 'Windows Tunez',
+            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+            image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop'
+        }
+    ];
+    saveSongs();
+}
 
-fileInput.addEventListener('change', (e) => {
+function handleFileSelect(e) {
     const files = Array.from(e.target.files);
     
     if (files.length === 0) return;
-    
-    files.forEach((file) => {
+
+    files.forEach(file => {
         if (file.type.startsWith('audio/')) {
             const reader = new FileReader();
+            
             reader.onload = (event) => {
                 songs.push({
                     title: file.name.replace(/\.[^/.]+$/, ''),
                     artist: 'Uploaded Song',
                     url: event.target.result,
-                    image: 'https://via.placeholder.com/300?text=Music'
+                    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop'
                 });
+                
                 saveSongs();
                 renderPlaylist();
                 
-                // Load first song if it's the first upload
                 if (songs.length === 1) {
+                    currentIndex = 0;
                     loadSong();
                 }
             };
+            
             reader.onerror = () => {
-                console.error('Error reading file:', file.name);
+                console.error('Error reading file');
             };
+            
             reader.readAsDataURL(file);
-        } else {
-            alert(`${file.name} is not an audio file`);
         }
     });
     
     fileInput.value = '';
-});
+}
 
-// Render playlist
 function renderPlaylist() {
     playlist.innerHTML = '';
+    
     songs.forEach((song, index) => {
         const li = document.createElement('li');
         li.className = 'playlist-item';
-        if (index === currentIndex) li.classList.add('active');
+        if (index === currentIndex) {
+            li.classList.add('active');
+        }
         li.textContent = `${index + 1}. ${song.title}`;
         li.addEventListener('click', () => {
             currentIndex = index;
@@ -89,7 +136,6 @@ function renderPlaylist() {
     });
 }
 
-// Load song
 function loadSong() {
     if (songs.length === 0) return;
     
@@ -102,88 +148,87 @@ function loadSong() {
     updatePlaylistUI();
 }
 
-// Update playlist UI
 function updatePlaylistUI() {
     document.querySelectorAll('.playlist-item').forEach((item, index) => {
         item.classList.remove('active');
-        if (index === currentIndex) item.classList.add('active');
+        if (index === currentIndex) {
+            item.classList.add('active');
+        }
     });
 }
 
-// Play
-function play() {
+function togglePlay() {
     if (songs.length === 0) {
         alert('Please upload songs first!');
         return;
     }
-    audioPlayer.play();
-    isPlaying = true;
-    playBtn.textContent = '⏸ Pause';
-    playBtn.classList.add('playing');
-}
-
-// Pause
-function pause() {
-    audioPlayer.pause();
-    isPlaying = false;
-    playBtn.textContent = '▶ Play';
-    playBtn.classList.remove('playing');
-}
-
-// Toggle play/pause
-playBtn.addEventListener('click', () => {
+    
     if (isPlaying) {
         pause();
     } else {
         play();
     }
-});
+}
 
-// Next song
-nextBtn.addEventListener('click', () => {
+function play() {
+    audioPlayer.play();
+    isPlaying = true;
+    updatePlayButton();
+}
+
+function pause() {
+    audioPlayer.pause();
+    isPlaying = false;
+    updatePlayButton();
+}
+
+function updatePlayButton() {
+    if (isPlaying) {
+        playBtn.classList.add('playing');
+        playBtn.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+    } else {
+        playBtn.classList.remove('playing');
+        playBtn.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+    }
+}
+
+function nextSong() {
     if (songs.length === 0) return;
     currentIndex = (currentIndex + 1) % songs.length;
     loadSong();
     if (isPlaying) play();
-});
+}
 
-// Previous song
-prevBtn.addEventListener('click', () => {
+function previousSong() {
     if (songs.length === 0) return;
     currentIndex = (currentIndex - 1 + songs.length) % songs.length;
     loadSong();
     if (isPlaying) play();
-});
+}
 
-// Update progress bar
-audioPlayer.addEventListener('timeupdate', () => {
+function seek() {
+    const time = (progressBar.value / 100) * audioPlayer.duration;
+    audioPlayer.currentTime = time;
+}
+
+function updateProgress() {
     const percentage = (audioPlayer.currentTime / audioPlayer.duration) * 100;
     progressBar.value = percentage || 0;
+}
+
+function updateTime() {
+    updateProgress();
     currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
-});
+}
 
-// Update duration
-audioPlayer.addEventListener('loadedmetadata', () => {
+function updateDuration() {
     durationEl.textContent = formatTime(audioPlayer.duration);
-});
+}
 
-// Seek song
-progressBar.addEventListener('input', (e) => {
-    const time = (e.target.value / 100) * audioPlayer.duration;
-    audioPlayer.currentTime = time;
-});
+function setVolume() {
+    audioPlayer.volume = volumeControl.value / 100;
+}
 
-// Volume control
-volumeControl.addEventListener('input', (e) => {
-    audioPlayer.volume = e.target.value / 100;
-});
-
-// Auto play next song when current ends
-audioPlayer.addEventListener('ended', () => {
-    nextBtn.click();
-});
-
-// Format time (mm:ss)
 function formatTime(seconds) {
     if (isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
@@ -191,27 +236,5 @@ function formatTime(seconds) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-// Initialize
-loadSongs();
-if (songs.length > 0) {
-    loadSong();
-} else {
-    // Add sample songs
-    songs = [
-        {
-            title: 'Sample Song 1',
-            artist: 'Unknown Artist',
-            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-            image: 'https://via.placeholder.com/300?text=Song+1'
-        },
-        {
-            title: 'Sample Song 2',
-            artist: 'Unknown Artist',
-            url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-            image: 'https://via.placeholder.com/300?text=Song+2'
-        }
-    ];
-    saveSongs();
-    renderPlaylist();
-    loadSong();
-}
+// Start the app
+init();
