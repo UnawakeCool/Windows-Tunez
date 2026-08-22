@@ -82,11 +82,9 @@ function showUploadProgress(current, total) {
 
 // Hide upload progress
 function hideUploadProgress() {
-    setTimeout(function() {
-        uploadProgress.style.display = 'none';
-        progressFill.style.width = '0%';
-        uploadStatus.textContent = 'Uploading...';
-    }, 1000);
+    uploadProgress.style.display = 'none';
+    progressFill.style.width = '0%';
+    uploadStatus.textContent = 'Uploading...';
 }
 
 // Process files - Sequential processing
@@ -147,20 +145,13 @@ function processFiles(files) {
             console.log('Progress: ' + filesProcessed + '/' + validFiles.length);
             
             // Process next file after a small delay
-            setTimeout(processNext, 100);
+            setTimeout(processNext, 50);
         };
         
         reader.onerror = function(error) {
             console.error('Error reading ' + file.name + ':', error);
             filesProcessed++;
-            setTimeout(processNext, 100);
-        };
-        
-        reader.onprogress = function(event) {
-            if (event.lengthComputable) {
-                const percentComplete = Math.round((event.loaded / event.total) * 100);
-                console.log(file.name + ': ' + percentComplete + '%');
-            }
+            setTimeout(processNext, 50);
         };
         
         try {
@@ -168,7 +159,7 @@ function processFiles(files) {
         } catch (error) {
             console.error('Error starting read for ' + file.name + ':', error);
             filesProcessed++;
-            setTimeout(processNext, 100);
+            setTimeout(processNext, 50);
         }
     }
     
