@@ -1,4 +1,4 @@
-// Get all elements
+// Elements
 const audioPlayer = document.getElementById('audioPlayer');
 const playBtn = document.getElementById('playBtn');
 const prevBtn = document.getElementById('prevBtn');
@@ -7,6 +7,11 @@ const progressBar = document.getElementById('progressBar');
 const volumeControl = document.getElementById('volumeControl');
 const fileInput = document.getElementById('fileInput');
 const uploadBtn = document.getElementById('uploadBtn');
+const dropZone = document.getElementById('dropZone');
+const uploadProgress = document.getElementById('uploadProgress');
+const uploadStatus = document.getElementById('uploadStatus');
+const uploadCount = document.getElementById('uploadCount');
+const progressFill = document.getElementById('progressFill');
 const playlist = document.getElementById('playlist');
 const songTitle = document.getElementById('songTitle');
 const artistName = document.getElementById('artistName');
@@ -18,7 +23,7 @@ let songs = [];
 let currentIndex = 0;
 let isPlaying = false;
 
-// Load songs from storage
+// Load songs from localStorage
 function loadSongs() {
     const saved = localStorage.getItem('windowstunezSongs');
     if (saved) {
@@ -30,7 +35,7 @@ function loadSongs() {
     }
 }
 
-// Save songs to storage
+// Save songs to localStorage
 function saveSongs() {
     localStorage.setItem('windowstunezSongs', JSON.stringify(songs));
 }
@@ -54,71 +59,155 @@ function addSampleSongs() {
     saveSongs();
 }
 
-// Handle file selection
-function handleFileSelect(e) {
-    const files = Array.from(e.target.files);
-    
-    if (files.length === 0) return;
+// Show upload progress
+function showUploadProgress(current, total) {
+    uploadProgress.style.display = 'block';
+    uploadCount.textContent = current + '/' + total;
+    progressFill.style.width = (current / total * 100) + '%';
+}
 
-    files.forEach((file) => {
-        if (file.type.startsWith('audio/')) {
-            const reader = new FileReader();
+// Hide upload progress
+function hideUploadProgress() {
+    uploadProgress.style.display = 'none';
+    progressFill.style.width = '0%';
+}
+
+// Process files
+function processFiles(files) {
+    const fileArray = Array.from(files);
+    
+    if (fileArray.length === 0) return;
+
+    let validFiles = [];
+    
+    // Filter audio files only
+    for (let i = 0; i < fileArray.length; i++) {
+        if (fileArray[i].type.startsWith('audio/')) {
+            validFiles.push(fileArray[i]);
+        }
+    }
+    
+    if (validFiles.length === 0) {
+        alert('No audio files found. Please select audio files (MP3, WAV, FLAC, OGG, etc.)');
+        return;
+    }
+
+    console.log('Processing ' + validFiles.length + ' audio files');
+    showUploadProgress(0, validFiles.length);
+    
+    let filesProcessed = 0;
+    
+    validFiles.forEach(function(file, index) {
+        console.log('Reading: ' + file.name);
+        
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            console.log('Loaded: ' + file.name);
+            const songName = file.name.replace(/\.[^/.]+$/, '');
             
-            reader.onload = (event) => {
-                songs.push({
-                    title: file.name.replace(/\.[^/.]+$/, ''),
-                    artist: 'Uploaded Song',
-                    url: event.target.result,
-                    image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop'
-                });
-                
+            songs.push({
+                title: songName,
+                artist: 'Uploaded Song',
+                url: e.target.result,
+                image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop'
+            });
+            
+            filesProcessed++;
+            showUploadProgress(filesProcessed, validFiles.length);
+            console.log('Progress: ' + filesProcessed + '/' + validFiles.length);
+            
+            if (filesProcessed === validFiles.length) {
+                console.log('All files processed!');
                 saveSongs();
                 renderPlaylist();
-                
-                if (songs.length === 1) {
-                    currentIndex = 0;
-                    loadSong();
-                }
-            };
-            
-            reader.onerror = () => {
-                console.error('Error reading file:', file.name);
-            };
-            
-            reader.readAsDataURL(file);
-        } else {
-            alert(file.name + ' is not an audio file');
-        }
+                loadSong();
+                hideUploadProgress();
+                alert('Successfully added ' + validFiles.length + ' song(s) to your library!');
+            }
+        };
+        
+        reader.onerror = function(error) {
+            console.error('Error reading ' + file.name + ':', error);
+            filesProcessed++;
+            showUploadProgress(filesProcessed, validFiles.length);
+        };
+        
+        reader.readAsDataURL(file);
     });
-    
-    fileInput.value = '';
 }
+
+// Upload button click
+uploadBtn.addEventListener('click', function() {
+    fileInput.click();
+});
+
+// File input change
+fileInput.addEventListener('change', function() {
+    console.log('Files selected:', this.files.length);
+    processFiles(this.files);
+    this.value = '';
+});
+
+// Drag and drop
+dropZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('drag-over');
+});
+
+dropZone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('drag-over');
+});
+
+dropZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('drag-over');
+    
+    console.log('Files dropped:', e.dataTransfer.files.length);
+    processFiles(e.dataTransfer.files);
+});
+
+// Prevent default drag behavior on body
+document.addEventListener('dragover', function(e) {
+    e.preventDefault();
+});
+
+document.addEventListener('drop', function(e) {
+    e.preventDefault();
+});
 
 // Render playlist
 function renderPlaylist() {
+    console.log('Rendering ' + songs.length + ' songs');
     playlist.innerHTML = '';
     
-    songs.forEach((song, index) => {
+    for (let i = 0; i < songs.length; i++) {
+        const song = songs[i];
         const li = document.createElement('li');
         li.className = 'playlist-item';
-        if (index === currentIndex) {
+        if (i === currentIndex) {
             li.classList.add('active');
         }
-        li.textContent = `${index + 1}. ${song.title}`;
-        li.addEventListener('click', () => {
-            currentIndex = index;
+        li.textContent = (i + 1) + '. ' + song.title;
+        li.onclick = function() {
+            currentIndex = i;
             loadSong();
             play();
-        });
+        };
         playlist.appendChild(li);
-    });
+    }
 }
 
-// Load current song
+// Load song
 function loadSong() {
     if (songs.length === 0) return;
     
     const song = songs[currentIndex];
+    console.log('Loading: ' + song.title);
     audioPlayer.src = song.url;
     songTitle.textContent = song.title;
     artistName.textContent = song.artist;
@@ -129,18 +218,19 @@ function loadSong() {
 
 // Update playlist UI
 function updatePlaylistUI() {
-    document.querySelectorAll('.playlist-item').forEach((item, index) => {
-        item.classList.remove('active');
-        if (index === currentIndex) {
-            item.classList.add('active');
+    const items = document.querySelectorAll('.playlist-item');
+    for (let i = 0; i < items.length; i++) {
+        items[i].classList.remove('active');
+        if (i === currentIndex) {
+            items[i].classList.add('active');
         }
-    });
+    }
 }
 
 // Play
 function play() {
     if (songs.length === 0) {
-        alert('Please upload songs first!');
+        alert('Please add songs first!');
         return;
     }
     audioPlayer.play();
@@ -156,110 +246,91 @@ function pause() {
 }
 
 // Toggle play/pause
-function togglePlay() {
-    if (songs.length === 0) {
-        alert('Please upload songs first!');
-        return;
-    }
-    
+playBtn.onclick = function() {
     if (isPlaying) {
         pause();
     } else {
         play();
     }
-}
+};
 
 // Update play button
 function updatePlayButton() {
     if (isPlaying) {
         playBtn.classList.add('playing');
-        playBtn.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+        playBtn.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
     } else {
         playBtn.classList.remove('playing');
-        playBtn.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+        playBtn.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
     }
 }
 
 // Next song
-function nextSong() {
+nextBtn.onclick = function() {
     if (songs.length === 0) return;
     currentIndex = (currentIndex + 1) % songs.length;
     loadSong();
     if (isPlaying) play();
-}
+};
 
 // Previous song
-function previousSong() {
+prevBtn.onclick = function() {
     if (songs.length === 0) return;
     currentIndex = (currentIndex - 1 + songs.length) % songs.length;
     loadSong();
     if (isPlaying) play();
-}
+};
 
-// Seek to position
-function seek() {
-    const time = (progressBar.value / 100) * audioPlayer.duration;
+// Progress bar
+progressBar.onchange = function() {
+    const time = (this.value / 100) * audioPlayer.duration;
     audioPlayer.currentTime = time;
-}
+};
 
-// Update progress bar
-function updateProgress() {
+progressBar.oninput = function() {
     const percentage = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+    this.value = percentage || 0;
+};
+
+// Volume
+volumeControl.onchange = function() {
+    audioPlayer.volume = this.value / 100;
+};
+
+// Time update
+audioPlayer.ontimeupdate = function() {
+    const percentage = (this.currentTime / this.duration) * 100;
     progressBar.value = percentage || 0;
-}
+    currentTimeEl.textContent = formatTime(this.currentTime);
+};
 
-// Update time display
-function updateTime() {
-    updateProgress();
-    currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
-}
+// Metadata loaded
+audioPlayer.onloadedmetadata = function() {
+    durationEl.textContent = formatTime(this.duration);
+};
 
-// Update duration display
-function updateDuration() {
-    durationEl.textContent = formatTime(audioPlayer.duration);
-}
-
-// Set volume
-function setVolume() {
-    audioPlayer.volume = volumeControl.value / 100;
-}
+// Song ended
+audioPlayer.onended = function() {
+    nextBtn.onclick();
+};
 
 // Format time
 function formatTime(seconds) {
     if (isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    const secsStr = secs < 10 ? '0' + secs : secs;
+    return mins + ':' + secsStr;
 }
 
-// Initialize app
-function init() {
-    loadSongs();
-    if (songs.length === 0) {
-        addSampleSongs();
-    }
-    if (songs.length > 0) {
-        loadSong();
-        renderPlaylist();
-    }
-    
-    // Setup event listeners
-    uploadBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        fileInput.click();
-    });
-    
-    fileInput.addEventListener('change', handleFileSelect);
-    playBtn.addEventListener('click', togglePlay);
-    prevBtn.addEventListener('click', previousSong);
-    nextBtn.addEventListener('click', nextSong);
-    progressBar.addEventListener('change', seek);
-    progressBar.addEventListener('input', updateProgress);
-    volumeControl.addEventListener('change', setVolume);
-    audioPlayer.addEventListener('timeupdate', updateTime);
-    audioPlayer.addEventListener('loadedmetadata', updateDuration);
-    audioPlayer.addEventListener('ended', nextSong);
+// Initialize
+loadSongs();
+if (songs.length === 0) {
+    addSampleSongs();
+}
+if (songs.length > 0) {
+    loadSong();
+    renderPlaylist();
 }
 
-// Start the app
-init();
+console.log('Windows Tunez initialized');
