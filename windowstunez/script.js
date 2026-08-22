@@ -19,6 +19,10 @@ const currentTimeEl = document.getElementById('currentTime');
 const durationEl = document.getElementById('duration');
 const albumArt = document.getElementById('albumArt');
 
+// URL elements
+const urlInput = document.getElementById('urlInput');
+const addUrlBtn = document.getElementById('addUrlBtn');
+
 // Share elements
 const shareBtn = document.getElementById('shareBtn');
 const importBtn = document.getElementById('importBtn');
@@ -165,6 +169,117 @@ function processFiles(files) {
     
     processNext();
 }
+
+// Extract video ID from YouTube URL
+function getYoutubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// Check if URL is a direct audio file
+function isDirectAudioUrl(url) {
+    const audioExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.m4a', '.aac'];
+    for (let i = 0; i < audioExtensions.length; i++) {
+        if (url.toLowerCase().includes(audioExtensions[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Add URL to playlist
+function addUrlToPlaylist() {
+    const url = urlInput.value.trim();
+    
+    if (!url) {
+        alert('Please paste a URL');
+        return;
+    }
+    
+    let audioUrl = null;
+    let title = 'Unknown Track';
+    
+    // YouTube
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        const videoId = getYoutubeId(url);
+        if (videoId) {
+            // Using invidious instance (privacy-friendly YouTube proxy)
+            audioUrl = 'https://inv.riverside.rocks/latest_version?id=' + videoId + '&itag=251';
+            title = 'YouTube Video';
+        } else {
+            alert('Invalid YouTube URL');
+            return;
+        }
+    }
+    // Newgrounds
+    else if (url.includes('newgrounds.com')) {
+        // Try to extract direct audio link
+        if (url.includes('/audio/')) {
+            // Extract audio ID
+            const audioMatch = url.match(/\/audio\/(\d+)/);
+            if (audioMatch) {
+                const audioId = audioMatch[1];
+                audioUrl = 'https://audio.ngfiles.com/' + audioId + '_full.mp3';
+                title = 'Newgrounds Audio';
+            } else {
+                alert('Could not extract audio from Newgrounds link');
+                return;
+            }
+        } else {
+            alert('Please use a direct Newgrounds audio link (e.g., newgrounds.com/audio/[id])');
+            return;
+        }
+    }
+    // Direct audio URL
+    else if (isDirectAudioUrl(url)) {
+        audioUrl = url;
+        title = url.split('/').pop().split('.')[0];
+    }
+    // SoundCloud
+    else if (url.includes('soundcloud.com')) {
+        alert('SoundCloud support requires special setup. Please use YouTube, Newgrounds, or direct audio URLs');
+        return;
+    }
+    // Spotify
+    else if (url.includes('spotify.com')) {
+        alert('Spotify requires authentication. Please use YouTube, Newgrounds, or direct audio URLs');
+        return;
+    }
+    else {
+        alert('URL type not supported. Try YouTube, Newgrounds, or direct audio file URLs');
+        return;
+    }
+    
+    if (!audioUrl) {
+        alert('Could not process URL');
+        return;
+    }
+    
+    // Add song to playlist
+    songs.push({
+        title: title,
+        artist: 'Online Source',
+        url: audioUrl,
+        image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop'
+    });
+    
+    saveSongs();
+    renderPlaylist();
+    loadSong();
+    urlInput.value = '';
+    alert('Added: ' + title);
+}
+
+// Add URL button click
+addUrlBtn.addEventListener('click', addUrlToPlaylist);
+
+// Add URL on Enter key
+urlInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        addUrlToPlaylist();
+    }
+});
 
 // Upload button click
 uploadBtn.addEventListener('click', function() {
