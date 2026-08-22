@@ -1,401 +1,79 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-:root {
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --primary-light: #818cf8;
-    --secondary: #ec4899;
-    --bg-dark: #0f172a;
-    --bg-darker: #020617;
-    --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
-    --border: #1e293b;
-}
-
-html, body {
-    height: 100%;
-    width: 100%;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-    color: var(--text-primary);
-    overflow: hidden;
-}
-
-.main-container {
-    width: 100%;
-    max-width: 420px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.player-wrapper {
-    width: 100%;
-    perspective: 1000px;
-}
-
-.player {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border-radius: 24px;
-    padding: 30px 24px;
-    box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.5),
-        0 0 100px rgba(99, 102, 241, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    position: relative;
-    overflow: hidden;
-}
-
-.bg-blur {
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-    pointer-events: none;
-}
-
-/* Album Section */
-.album-section {
-    margin-bottom: 32px;
-    position: relative;
-    z-index: 1;
-}
-
-.album-container {
-    position: relative;
-    width: 260px;
-    height: 260px;
-    margin: 0 auto;
-}
-
-.album-art {
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    object-fit: cover;
-    box-shadow: 
-        0 20px 40px rgba(99, 102, 241, 0.3),
-        0 0 60px rgba(236, 72, 153, 0.1);
-    animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-.album-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
-    border-radius: 20px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.album-container:hover .album-overlay {
-    opacity: 1;
-}
-
-/* Song Details */
-.song-details {
+/* Upload Area */
+.upload-area {
+    border: 2px dashed var(--primary);
+    border-radius: 16px;
+    padding: 32px 24px;
     text-align: center;
-    margin-bottom: 28px;
-    position: relative;
-    z-index: 1;
-}
-
-.song-details h2 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: var(--text-primary);
-    letter-spacing: -0.5px;
-}
-
-.song-details p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-/* Progress Section */
-.progress-section {
-    margin-bottom: 24px;
-    position: relative;
-    z-index: 1;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 5px;
-    border-radius: 10px;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-    background: linear-gradient(to right, var(--primary), var(--primary));
-    background-size: 0% 100%;
-    background-repeat: no-repeat;
     cursor: pointer;
-    margin-bottom: 12px;
-}
-
-.progress-bar::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--primary);
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-    transition: all 0.2s ease;
-}
-
-.progress-bar::-webkit-slider-thumb:hover {
-    transform: scale(1.3);
-}
-
-.progress-bar::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--primary);
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-    transition: all 0.2s ease;
-}
-
-.progress-bar::-moz-range-thumb:hover {
-    transform: scale(1.3);
-}
-
-.time-display {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--text-secondary);
-    font-weight: 600;
-}
-
-/* Controls */
-.controls-main {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 28px;
-    position: relative;
-    z-index: 1;
-}
-
-.control-btn {
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    color: var(--text-primary);
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: all 0.3s ease;
+    background: rgba(99, 102, 241, 0.05);
     position: relative;
+    overflow: hidden;
 }
 
-.control-btn:hover {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: rgba(99, 102, 241, 0.5);
+.upload-area:hover {
+    border-color: var(--primary-light);
+    background: rgba(99, 102, 241, 0.1);
     transform: translateY(-2px);
 }
 
-.control-btn:active {
-    transform: translateY(0);
+.upload-area.drag-over {
+    border-color: var(--secondary);
+    background: rgba(236, 72, 153, 0.1);
+    transform: scale(1.02);
 }
 
-.play-btn {
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    border: none;
-    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
-}
-
-.play-btn:hover {
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-    box-shadow: 0 12px 32px rgba(99, 102, 241, 0.6);
-}
-
-.play-btn.playing {
-    background: linear-gradient(135deg, var(--secondary) 0%, #f472b6 100%);
-    box-shadow: 0 8px 24px rgba(236, 72, 153, 0.4);
-}
-
-/* Volume Section */
-.volume-section {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 28px;
+.upload-content {
     position: relative;
-    z-index: 1;
-    padding: 12px;
-    background: rgba(99, 102, 241, 0.05);
-    border-radius: 12px;
-    border: 1px solid rgba(99, 102, 241, 0.1);
+    z-index: 2;
 }
 
-.volume-section svg {
-    color: var(--text-secondary);
-    flex-shrink: 0;
-}
-
-.volume-slider {
-    flex: 1;
-    height: 4px;
-    border-radius: 10px;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-    background: rgba(99, 102, 241, 0.2);
-    cursor: pointer;
-}
-
-.volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--primary);
-    cursor: pointer;
-}
-
-.volume-slider::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--primary);
-    cursor: pointer;
-    border: none;
-}
-
-/* Playlist */
-.playlist-container {
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 1;
-}
-
-.playlist-container h3 {
-    font-size: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-secondary);
+.upload-icon {
+    color: var(--primary);
     margin-bottom: 12px;
+    animation: bounce 2s ease-in-out infinite;
 }
 
-.playlist {
-    list-style: none;
-    max-height: 200px;
-    overflow-y: auto;
-    border-radius: 12px;
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(99, 102, 241, 0.1);
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
-.playlist::-webkit-scrollbar {
-    width: 6px;
-}
-
-.playlist::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.playlist::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.3);
-    border-radius: 3px;
-}
-
-.playlist::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.5);
-}
-
-.playlist-item {
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    background: rgba(99, 102, 241, 0.05);
-    border: 1px solid rgba(99, 102, 241, 0.1);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-    border-left: 3px solid transparent;
-}
-
-.playlist-item:hover {
-    background: rgba(99, 102, 241, 0.1);
-    border-left-color: var(--primary);
+.upload-area h3 {
+    font-size: 18px;
+    font-weight: 700;
     color: var(--text-primary);
+    margin-bottom: 8px;
 }
 
-.playlist-item.active {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
-    border-left-color: var(--primary);
-    border-color: var(--primary);
-    color: var(--primary-light);
+.upload-area p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.upload-or {
+    margin: 16px 0 12px 0;
     font-weight: 600;
-}
-
-/* Upload Section */
-.upload-area {
-    position: relative;
-    z-index: 1;
+    color: var(--text-secondary);
 }
 
 .upload-btn {
-    width: 100%;
-    padding: 14px;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     border: none;
     border-radius: 12px;
     color: white;
+    padding: 12px 32px;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-    letter-spacing: 0.5px;
+    margin-top: 12px;
 }
 
 .upload-btn:hover {
@@ -408,23 +86,60 @@ body {
     transform: translateY(0);
 }
 
-/* Responsive */
+#fileInput {
+    display: none;
+}
+
+/* Upload Progress */
+.upload-progress {
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.progress-bar-upload {
+    width: 100%;
+    height: 6px;
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 3px;
+}
+
+/* Mobile responsive */
 @media (max-width: 480px) {
-    .player {
-        padding: 20px 16px;
+    .upload-area {
+        padding: 24px 16px;
     }
 
-    .album-container {
-        width: 220px;
-        height: 220px;
+    .upload-icon {
+        width: 40px;
+        height: 40px;
     }
 
-    .song-details h2 {
-        font-size: 20px;
+    .upload-area h3 {
+        font-size: 16px;
     }
 
-    .play-btn {
-        width: 56px;
-        height: 56px;
+    .upload-area p {
+        font-size: 12px;
     }
 }
