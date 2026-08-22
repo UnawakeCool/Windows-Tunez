@@ -179,13 +179,20 @@ function getYoutubeId(url) {
 
 // Check if URL is a direct audio file
 function isDirectAudioUrl(url) {
-    const audioExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.m4a', '.aac'];
+    const audioExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.m4a', '.aac', '.webm'];
     for (let i = 0; i < audioExtensions.length; i++) {
         if (url.toLowerCase().includes(audioExtensions[i])) {
             return true;
         }
     }
     return false;
+}
+
+// Extract audio ID from Newgrounds URL
+function getNewgroundsAudioId(url) {
+    // Handle different Newgrounds URL formats
+    const audioMatch = url.match(/\/audio\/(?:listen\/)?(\d+)/);
+    return audioMatch ? audioMatch[1] : null;
 }
 
 // Add URL to playlist
@@ -204,9 +211,9 @@ function addUrlToPlaylist() {
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
         const videoId = getYoutubeId(url);
         if (videoId) {
-            // Using invidious instance (privacy-friendly YouTube proxy)
-            audioUrl = 'https://inv.riverside.rocks/latest_version?id=' + videoId + '&itag=251';
-            title = 'YouTube Video';
+            // YouTube is blocked by CORS - use alternative method
+            alert('YouTube videos cannot be played directly due to copyright protection.\n\nTry:\n1. Download the audio from YouTube (use youtube-dl or similar)\n2. Upload the MP3 file to Windows Tunez\n3. Use a direct MP3 link instead');
+            return;
         } else {
             alert('Invalid YouTube URL');
             return;
@@ -214,40 +221,41 @@ function addUrlToPlaylist() {
     }
     // Newgrounds
     else if (url.includes('newgrounds.com')) {
-        // Try to extract direct audio link
-        if (url.includes('/audio/')) {
-            // Extract audio ID
-            const audioMatch = url.match(/\/audio\/(\d+)/);
-            if (audioMatch) {
-                const audioId = audioMatch[1];
-                audioUrl = 'https://audio.ngfiles.com/' + audioId + '_full.mp3';
-                title = 'Newgrounds Audio';
-            } else {
-                alert('Could not extract audio from Newgrounds link');
-                return;
-            }
+        const audioId = getNewgroundsAudioId(url);
+        if (audioId) {
+            // Try multiple Newgrounds CDN endpoints
+            audioUrl = 'https://audio.ngfiles.com/' + audioId + '_full.mp3';
+            title = 'Newgrounds Audio #' + audioId;
+            
+            // Verify the URL works
+            const img = new Image();
+            img.onerror = function() {
+                // If the above doesn't work, try alternate format
+                audioUrl = 'https://audio.ngfiles.com/' + audioId + '.mp3';
+            };
+            img.src = audioUrl;
         } else {
-            alert('Please use a direct Newgrounds audio link (e.g., newgrounds.com/audio/[id])');
+            alert('Could not extract audio ID from Newgrounds link.\n\nMake sure you\'re using a link like:\nhttps://www.newgrounds.com/audio/listen/815245');
             return;
         }
     }
     // Direct audio URL
     else if (isDirectAudioUrl(url)) {
         audioUrl = url;
-        title = url.split('/').pop().split('.')[0];
+        title = url.split('/').pop().split('?')[0].split('.')[0];
     }
     // SoundCloud
     else if (url.includes('soundcloud.com')) {
-        alert('SoundCloud support requires special setup. Please use YouTube, Newgrounds, or direct audio URLs');
+        alert('SoundCloud blocks direct audio access.\n\nTry downloading from SoundCloud (right-click → Save as) then upload the file to Windows Tunez');
         return;
     }
     // Spotify
     else if (url.includes('spotify.com')) {
-        alert('Spotify requires authentication. Please use YouTube, Newgrounds, or direct audio URLs');
+        alert('Spotify requires premium and special permissions.\n\nTry downloading from Spotify or using a different audio source');
         return;
     }
     else {
-        alert('URL type not supported. Try YouTube, Newgrounds, or direct audio file URLs');
+        alert('URL type not supported.\n\nSupported:\n• Direct audio files (.mp3, .wav, .ogg, .flac)\n• Newgrounds audio links\n\nFor YouTube & SoundCloud, download the audio first then upload');
         return;
     }
     
@@ -268,7 +276,7 @@ function addUrlToPlaylist() {
     renderPlaylist();
     loadSong();
     urlInput.value = '';
-    alert('Added: ' + title);
+    alert('Added: ' + title + '\n\nIf it doesn\'t play, the source may be blocked by CORS');
 }
 
 // Add URL button click
